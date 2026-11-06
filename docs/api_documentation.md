@@ -19,7 +19,7 @@ document at `/openapi.json`. All bodies are JSON.
 | `POST /expenses` | Record a shared expense | 201 | 404 group/payer, 422 |
 | `GET /groups/{group_id}/expenses` | Expense history of a group | 200 | 404 |
 | `GET /balances[?group_id=]` | Who owes whom | 200 | 404, 422 |
-| `GET /groups/{group_id}/settlements/suggestions` | **Smart settlement plan** | 200 | 404 |
+| `GET /groups/{group_id}/settlements/suggestions` | **Simplified settlement plan (greedy)** | 200 | 404 |
 | `POST /settlements` | Record a real repayment | 201 | 404, 422 |
 | `GET /groups/{group_id}/settlements` | Repayment history | 200 | 404 |
 | `GET /health` | Liveness + database check | 200 | 500 |
@@ -95,7 +95,8 @@ Optional fields (mutually exclusive):
 
 ## Balances
 
-`GET /balances` (all groups combined) or `GET /balances?group_id=1`
+`GET /balances?group_id=1` (one group - recommended) or `GET /balances` (all groups combined; debts from
+different groups can cancel each other out)
 ```json
 {"Rahul": {"owes": {"Mohit": 400}}, "Ankit": {"owes": {"Mohit": 400}}}
 ```

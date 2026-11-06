@@ -1,7 +1,7 @@
 # Expense Sharing Service
 
 A backend service for splitting shared expenses inside groups of friends: record who paid what,
-see who owes whom, and settle up with the fewest possible payments.
+see who owes whom, and settle up using a simplified settlement plan (greedy algorithm).
 Built for the **Decentro SDE Intern assignment - Expense Sharing Service**.
 
 **Stack:** Python 3.11 - FastAPI - PostgreSQL - SQLAlchemy 2 - Alembic - Pydantic - Pytest - Docker
@@ -182,7 +182,7 @@ curl -X POST localhost:8000/expenses -H 'Content-Type: application/json' \
   -d '{"group_id":1,"paid_by":1,"amount":1200,"description":"Dinner"}'
 # 201 -> splits: Mohit 400, Rahul 400, Ankit 400
 
-curl localhost:8000/balances
+curl 'localhost:8000/balances?group_id=1'
 # {"Rahul":{"owes":{"Mohit":400}},"Ankit":{"owes":{"Mohit":400}}}
 ```
 
@@ -251,7 +251,7 @@ Ankit pays Mohit 400, Sameer pays Rahul 300, Sameer pays Mohit 100 (3 payments).
 **Feature: Smart Settlement suggestions** (plus recorded repayments so the plan can be acted on).
 
 * **Why:** the last step of every trip is "who sends money to whom?". The pairwise view can list many
-  small cross-debts; real people want the shortest list.
+  small cross-debts; a simplified plan with fewer payments is easier to act on.
 * **Problem solved:** with the three-expense example the pairwise view needs 3 payments; the plan needs 1
   (Ankit pays Mohit 300). The response also includes `pairwise_transaction_count` for comparison.
 * **Design decisions:** the algorithm works only on integer net positions (exact, deterministic); it is a
@@ -348,7 +348,8 @@ test that compares the Alembic schema with the models.
 * Names identify users in responses, so user names are unique, ignoring case.
 * There is no authentication (not required); anyone can call any endpoint.
 * In the `/balances` response, a person appears only while they owe someone.
-* `GET /balances` without `group_id` combines all groups.
+* `GET /balances` without `group_id` combines all groups, so debts from different groups can cancel each
+  other out. Use `GET /balances?group_id=<id>` to see a single group's balances (e.g. in demos).
 * In custom `participants` / `splits` modes the payer may be left out (they paid for others).
 * Custom split amounts must be positive (a zero share is pointless); equal splits may yield a 0 share for tiny amounts.
 

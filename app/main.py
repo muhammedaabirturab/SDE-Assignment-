@@ -15,7 +15,8 @@ def create_app() -> FastAPI:
         version=settings.app_version,
         description=(
             "Track shared expenses in groups, see who owes whom and settle up "
-            "with the fewest payments. Amounts are in rupees (max 2 decimals)."
+            "with a simplified settlement plan (greedy algorithm). "
+            "Amounts are in rupees (max 2 decimals)."
         ),
     )
     register_exception_handlers(app)

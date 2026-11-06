@@ -11,10 +11,11 @@ router = APIRouter(tags=["Settlements"])
 @router.get(
     "/groups/{group_id}/settlements/suggestions",
     response_model=SettlementPlanOut,
-    summary="Smart settlement plan (fewest payments)",
+    summary="Simplified settlement plan (greedy algorithm)",
 )
 def get_settlement_plan(group_id: int, db: Session = Depends(get_db)):
-    """Simplify the group's debts with a greedy algorithm.
+    """Simplify the group's debts with a greedy algorithm (a heuristic: it does not
+    guarantee the global minimum number of payments).
 
     Returns each member's net balance and a short list of payments that, if all
     made, bring every net balance to zero. This only *suggests*; nothing is
